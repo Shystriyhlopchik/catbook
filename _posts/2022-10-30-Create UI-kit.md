@@ -1,6 +1,6 @@
 ---
 title: Создание UI Kit
-categories: [Angular]
+categories: [angular]
 comments: false
 ---
 # Создание UI Kit
