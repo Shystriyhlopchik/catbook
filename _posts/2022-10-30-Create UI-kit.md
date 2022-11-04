@@ -8,7 +8,7 @@ comments: false
 2. [Синтаксис Angular шаблонов](#syntax)
 3. [Передача данных дочернему компоненту](#input)
 4. [Обработка DOM событий](#dom)
-5. Стилилизация Angular компонентов
+5. [Стилилизация Angular компонентов](#style)
 6. Карточка товара
 
 ## <a name="component">Компоненты в Angular</a>
@@ -426,3 +426,83 @@ export class TextFieldComponent {
 {% endraw %}
 
 Старайтесь использовать возможности заложенные в Angular чтобы не писать лишний код. 
+
+## <a name="style">Стилилизация Angular компонентов</a>
+
+В последнем теоретическом блоке научимся управлять стилями компонентов в Angular. В разработке интерфейсов часто возникают ситуации
+когда необходимо динамически менять стили компонентов в зависимости от состояния. Например сделать кнопку активной в зависимости от условия или показать/скрыть
+элемент. Вспомним как это делается в JS:
+
+```js
+const menuElement = document.getElementById('#menu');
+menuElement.className = 'class1 class2 class3';
+menuElement.classList.add('class1');
+menuElement.style.backgroundColor = 'black';
+```
+
+Сперва мы получаем ссылку на элемент используя `getElementById` и после этого уже можем воспользоваться тремя модификаторами.
+Авторы Angular упростили процесс динамической стилизации. Начнём с самого просстого способа - интераоляции.
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-button',
+    template: `<button class="{{ buttonClass }}">Click me </button>`,
+    styles: [`.active{background-color: red;} .default{background-color: blue}`]
+})
+export class ButtonClass {
+    @Input() isActive = false;
+    buttonClass = this.isActive ? 'active' : 'default';
+}
+```
+{% endraw %}
+
+В вышеописанном коде компонент `app-button` принимает родительское значение `isActive` которое может быть `true/false`. 
+По умолчанию свойство `isActive = false`. Таким образом нам удается избежать случая когда родительский компонент передаёт `undefined`.
+Указание значения по умолчанию для входного свойства является хорошей практиуой и безопасно для родительского компонента.
+Затем присвоим `buttonClass` тернарный оператор который будет присваивать подходящий класс.
+
+Упростим этот код применяя возможности Angular:
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-button',
+    template: `<button [class.active]="isActive">Click me </button>`,
+    styles: [`.active{background-color: red;} .default{background-color: blue}`]
+})
+export class ButtonClass {
+    @Input() isActive = false;
+}
+```
+{% endraw %}
+
+Используя синтаксис привязки аттрибута мы можем привязывать CSS свойства по отдельности:
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-button',
+    template: `<button [class.active]="isActive" [style.font-size]="16px">Click me </button>`,
+    styles: [`.active{background-color: red;} .default{background-color: blue}`]
+})
+export class ButtonClass {
+    @Input() isActive = false;
+}
+```
+{% endraw %}
+
+Но и этот код мы можем написать иначе:
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-button',
+    template: `<button [class.active]="isActive" [style.font-size.px]="16">Click me </button>`,
+    styles: [`.active{background-color: red;} .default{background-color: blue}`]
+})
+export class ButtonClass {
+    @Input() isActive = false;
+}
+```
+{% endraw %}
