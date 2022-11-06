@@ -492,7 +492,7 @@ export class ButtonClass {
 ```
 {% endraw %}
 
-Но и этот код мы можем написать иначе:
+Здесь мы указали размер шрифта через атрибут `style.font-size`. Но и этот код мы можем написать иначе указав единицу измерения передаваемого значения в атрибуте:
 
 {% raw %}
 ```ts
@@ -506,3 +506,114 @@ export class ButtonClass {
 }
 ```
 {% endraw %}
+
+Атрибуты могут принимать вычисляемые значения в виде вызова методом или геттеров и правила тут такие же как для интерполяции - по возможности использовать геттеры и не выполнять сложные вычисления внутри методов.
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-button',
+    template: `<button [class]="buttonClass()" [style.font-size.px]="fontSize">Click me </button>`,
+    styles: [`button{background-color: blue;} .active{background-color: red;}`]
+})
+export class ButtonClass {
+    @Input() isActive = false;
+    
+    get fontSize(): number {
+        return 16;
+    }
+    
+    buttonClass(): string {
+        return this.isActive ? 'active' : '';
+    }
+}
+```
+{% endraw %}
+
+Данные методы хорошо подходят когда необходимо вносить небольшое количество классов. Но как быть когда необходимо сконфигурировать много стилей ил управлять большим количеством классов.
+На этот случай имеются атрибутные директивы `ngStyle` и `ngClass`. Сперва обсудим что такое директива в Angular.
+
+Директива - это вспомогательная сущность которая расширяет поведение HTML элементов или Angular компонентов. Они не имеют своего собственного шаблона и должны быть 
+подключены к какому-либо компоненту.
+
+К примеру в Angular используется несколько видов директив. И о всех них мы поговорим позже. Пока начнем знакомство с атрибутных директив. Атрибутные директивы дают 
+дополнительные  возможности для управления атрибутами.
+
+| директива    | Описание                                 |
+|--------------|------------------------------------------|
+| `ngClass`    | Управляет динамической привязкой классов |
+| `ngStyle`    | Управляет динамической привязкой стилей  |
+
+Давайте представим, что у нас имеется элемент списка и по какой-то причине нам необходимо хранить стили внутри и привязывать к элементу. Для этого предадим объект
+со стилями в `ngStyle` и она привяжет все стили объекта элементу.
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-list-item',
+    template: `<div [ngStyle]="styles.default">`,
+})
+export class ListItemComponent {
+    public styles = {
+        default: {
+            'font-size': '14px',
+            height: '40px',
+            padding: '8px 0'
+        }
+    }
+        ...
+}
+```
+{% endraw %}
+
+Теперь усложним ситуацию. Вариантов стилей стало два и они применяются в зависимости от входного параметра.
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-list-item',
+    template: `<div [ngStyle]="isCompact ? styles.default : styles.compact">`,
+})
+export class ListItemComponent {
+    @Input()
+    isCompact = false;
+    
+    public styles = {
+        compact: {
+            'font-size': '18px',
+            height: '20px',
+            padding: '16px 0'
+        },
+        default: {
+            'font-size': '14px',
+            height: '40px',
+            padding: '8px 0'
+        }
+    }
+        ...
+}
+```
+{% endraw %}
+
+Используя тернарный оператор и директиву `ngStyle` мы легко решаем данную задачу. Перейдём к директиве `ngClass`.
+
+{% raw %}
+```ts
+@Component({
+    selector: 'app-list-item',
+    template: `<div [ngClass]="list_compact">`,
+    ...
+})
+export class ListItemComponent {
+    @Input()
+    isCompact = false;
+    @Input()
+    isFilled = false;
+    
+    const styles = {
+        'list_compact'
+    }
+}
+```
+{% endraw %}
+
